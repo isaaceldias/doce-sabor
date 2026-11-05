@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Doce Sabor - Brownies e Palhas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Poppins", "sans-serif"],
+            },
+            colors: {
+              brand: {
+                50: "#fdf8f6",
+                100: "#f2e8e5",
+                500: "#8b5a2b", // Chocolate
+                600: "#6b4423",
+                700: "#4a2f18",
+                gold: "#d4af37", // Dourado
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* Custom scrollbar for an elegant look */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #fdf8f6;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #8b5a2b;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #6b4423;
+      }
+
+      .glass {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+      }
+
+      .fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-brand-50 text-gray-800 antialiased min-h-screen flex flex-col"
+  >
+    <!-- APP CONTAINER -->
+    <div
+      id="app"
+      class="flex-grow flex flex-col relative w-full max-w-7xl mx-auto"
+    >
+      <!-- LOADER -->
+      <div
+        id="loader"
+        class="fixed inset-0 bg-brand-50 z-50 flex flex-col items-center justify-center"
+      >
+        <i
+          class="fas fa-cookie-bite text-4xl text-brand-500 animate-bounce mb-4"
+        ></i>
+        <p class="text-brand-700 font-medium">Carregando delícias...</p>
+      </div>
+
+      <!-- ==================== CUSTOMER VIEW ==================== -->
+      <div id="customer-view" class="hidden flex-col min-h-screen">
+        <!-- Header -->
+        <header
+          class="glass fixed top-0 w-full max-w-7xl mx-auto z-40 shadow-sm border-b border-brand-100"
+        >
+          <div class="px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-cookie-bite text-brand-500 text-2xl"></i>
+              <h1 class="text-xl font-bold text-brand-700">Doce Sabor</h1>
+            </div>
+            <button
+              onclick="toggleCart()"
+              class="relative p-2 text-brand-600 hover:text-brand-500 transition"
+            >
+              <i class="fas fa-shopping-bag text-xl"></i>
+              <span
+                id="cart-badge"
+                class="absolute top-0 right-0 bg-brand-gold text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full hidden"
+                >0</span
+              >
+            </button>
+          </div>
+        </header>
+
+        <!-- Hero Banner -->
+        <div
+          class="mt-20 px-4 py-8 bg-brand-500 text-white rounded-b-3xl shadow-md mx-2 flex flex-col items-center text-center relative overflow-hidden"
+        >
+          <div
+            class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/food.png')]"
+          ></div>
+          <h2 class="text-3xl font-bold mb-2 relative z-10">
+            Brownies & Palhas Italianas
+          </h2>
+          <p class="text-brand-100 relative z-10">
+            Feitos com amor, pedacinho por pedacinho.
+          </p>
+        </div>
+
+        <!-- Menu Section -->
+        <main class="flex-grow px-4 py-8">
+          <h3
+            class="text-xl font-bold text-brand-700 mb-6 border-b border-brand-100 pb-2"
+          >
+            Nosso Cardápio
+          </h3>
+
+          <div
+            id="menu-container"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            <!-- Menu items injected here via JS -->
+          </div>
+        </main>
+
+        <!-- Footer -->
+        <footer
+          class="bg-brand-700 text-brand-100 py-8 px-4 text-center mt-auto"
+        >
+          <p>&copy; 2024 Doce Sabor. Todos os direitos reservados.</p>
+          <button
+            onclick="showAdminLogin()"
+            class="text-xs text-brand-500 hover:text-brand-100 mt-4 underline decoration-brand-500"
+          >
+            Acesso Restrito (Admin)
+          </button>
+        </footer>
+      </div>
+
+      <!-- ==================== CART MODAL ==================== -->
+      <div
+        id="cart-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex justify-end"
+      >
+        <div
+          class="bg-white w-full max-w-md h-full shadow-2xl flex flex-col animate-[slideIn_0.3s_ease-out]"
+        >
+          <div
+            class="p-4 border-b border-gray-100 flex justify-between items-center bg-brand-50"
+          >
+            <h2 class="text-xl font-bold text-brand-700">Seu Pedido</h2>
+            <button
+              onclick="toggleCart()"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          <div
+            id="cart-items"
+            class="flex-grow overflow-y-auto p-4 flex flex-col gap-4"
+          >
+            <!-- Cart items injected here -->
+            <div
+              id="empty-cart-msg"
+              class="text-center text-gray-400 my-10 hidden"
+            >
+              <i class="fas fa-box-open text-4xl mb-3"></i>
+              <p>Sua sacola está vazia.</p>
+            </div>
+          </div>
+
+          <!-- Checkout Form (Hidden until cart has items) -->
+          <div
+            id="checkout-section"
+            class="p-4 bg-gray-50 border-t border-gray-200 hidden flex-col gap-3"
+          >
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-medium text-gray-600">Total:</span>
+              <span id="cart-total" class="text-2xl font-bold text-brand-700"
+                >R$ 0,00</span
+              >
+            </div>
+
+            <input
+              type="text"
+              id="cust-name"
+              placeholder="Seu Nome (Ex: Maria)"
+              class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-500"
+              required
+            />
+            <input
+              type="tel"
+              id="cust-phone"
+              placeholder="Seu WhatsApp (Ex: 11999999999)"
+              class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-500"
+              required
+            />
+
+            <select
+              id="cust-delivery"
+              class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-500 bg-white"
+            >
+              <option value="Retirada">Retirada no local</option>
+              <option value="A combinar">A combinar (Entrar em contato)</option>
+            </select>
+
+            <select
+              id="cust-payment"
+              class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-500 bg-white"
+            >
+              <option value="PIX">Pagamento via PIX</option>
+              <option value="Cartão (Link)">Cartão (Link de Pagamento)</option>
+            </select>
+
+            <button
+              onclick="submitOrder()"
+              class="w-full bg-brand-500 text-white font-bold py-4 rounded-xl hover:bg-brand-600 transition shadow-lg mt-2 flex justify-center items-center gap-2"
+            >
+              <i class="fab fa-whatsapp text-xl"></i> Enviar Pedido
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== ADMIN LOGIN ==================== -->
+      <div
+        id="admin-login-view"
+        class="hidden flex-grow flex items-center justify-center px-4 bg-brand-50"
+      >
+        <div
+          class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm text-center fade-in"
+        >
+          <i class="fas fa-lock text-4xl text-brand-500 mb-4"></i>
+          <h2 class="text-2xl font-bold text-brand-700 mb-6">Acesso da Chef</h2>
+          <input
+            type="password"
+            id="admin-pin"
+            placeholder="Senha de Acesso"
+            class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-500 text-center mb-4"
+          />
+          <button
+            onclick="loginAdmin()"
+            class="w-full bg-brand-500 text-white font-bold py-3 rounded-xl hover:bg-brand-600 transition"
+          >
+            Entrar
+          </button>
+          <button
+            onclick="showCustomerView()"
+            class="w-full text-gray-400 mt-4 text-sm hover:text-gray-600"
+          >
+            Voltar para a loja
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================== ADMIN DASHBOARD ==================== -->
+      <div id="admin-view" class="hidden flex-col min-h-screen bg-gray-50">
+        <header
+          class="bg-brand-700 text-white p-4 shadow-md flex justify-between items-center sticky top-0 z-30"
+        >
+          <div class="flex items-center gap-2">
+            <i class="fas fa-store"></i>
+            <h1 class="font-bold text-lg">Painel de Controle</h1>
+          </div>
+          <button
+            onclick="logoutAdmin()"
+            class="text-brand-100 hover:text-white text-sm flex items-center gap-1"
+          >
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </header>
+
+        <!-- Admin Tabs -->
+        <div
+          class="flex border-b border-gray-200 bg-white sticky top-[60px] z-20"
+        >
+          <button
+            onclick="switchAdminTab('orders')"
+            id="tab-orders"
+            class="flex-1 py-3 text-center font-medium border-b-2 border-brand-500 text-brand-600 transition"
+          >
+            Pedidos
+          </button>
+          <button
+            onclick="switchAdminTab('menu')"
+            id="tab-menu"
+            class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition"
+          >
+            Cardápio
+          </button>
+        </div>
+
+        <main class="flex-grow p-4 max-w-5xl mx-auto w-full">
+          <!-- ORDERS TAB -->
+          <div id="admin-orders-tab" class="fade-in space-y-4">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-bold text-gray-800">Comandas</h2>
+              <button
+                onclick="loadOrders()"
+                class="text-brand-500 p-2 rounded-full hover:bg-brand-50"
+              >
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            </div>
+            <div id="admin-orders-list" class="flex flex-col gap-4">
+              <!-- Orders injected here -->
+              <p class="text-center text-gray-500 py-8">
+                Nenhum pedido encontrado.
+              </p>
+            </div>
+          </div>
+
+          <!-- MENU TAB -->
+          <div id="admin-menu-tab" class="hidden fade-in space-y-4">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-bold text-gray-800">Produtos</h2>
+              <button
+                onclick="openProductModal()"
+                class="bg-brand-500 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-brand-600 transition flex items-center gap-2"
+              >
+                <i class="fas fa-plus"></i> Novo
+              </button>
+            </div>
+
+            <div
+              class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100"
+            >
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-gray-50 text-gray-600 text-sm">
+                      <th class="p-3 border-b">Produto</th>
+                      <th class="p-3 border-b">Preço</th>
+                      <th class="p-3 border-b text-center">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-menu-list">
+                    <!-- Admin menu items injected here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <!-- ==================== PRODUCT MODAL (ADMIN) ==================== -->
+      <div
+        id="product-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4"
+      >
+        <div
+          class="bg-white rounded-2xl w-full max-w-md p-6 fade-in max-h-[90vh] overflow-y-auto"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <h2 id="modal-title" class="text-xl font-bold text-gray-800">
+              Novo Produto
+            </h2>
+            <button
+              onclick="closeProductModal()"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          <form
+            id="product-form"
+            onsubmit="saveProduct(event)"
+            class="flex flex-col gap-4"
+          >
+            <input type="hidden" id="prod-id" />
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Nome</label
+              >
+              <input
+                type="text"
+                id="prod-name"
+                class="w-full p-2 border rounded-lg focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Descrição</label
+              >
+              <textarea
+                id="prod-desc"
+                rows="2"
+                class="w-full p-2 border rounded-lg focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
+              ></textarea>
+            </div>
+
+            <div class="flex gap-4">
+              <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Preço (R$)</label
+                >
+                <input
+                  type="number"
+                  id="prod-price"
+                  step="0.01"
+                  class="w-full p-2 border rounded-lg focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >URL da Imagem (Opcional)</label
+              >
+              <input
+                type="url"
+                id="prod-image"
+                placeholder="https://..."
+                class="w-full p-2 border rounded-lg focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
+              />
+              <p class="text-xs text-gray-400 mt-1">
+                Deixe em branco para usar imagem padrão.
+              </p>
+            </div>
+
+            <div class="mt-4 flex gap-3">
+              <button
+                type="button"
+                onclick="closeProductModal()"
+                class="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="flex-1 bg-brand-500 text-white py-2 rounded-lg font-medium hover:bg-brand-600"
+              >
+                Salvar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Toast Notification -->
+      <div
+        id="toast"
+        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-[60]"
+      >
+        Mensagem
+      </div>
+    </div>
+
+    <!-- App logic (Supabase + vanilla JavaScript) -->
+    <script type="module" src="/app.js"></script>
+    <!--
+      Este projeto usa Vite para injetar VITE_SUPABASE_URL e
+      VITE_SUPABASE_ANON_KEY no app.js. Para rodar: npm install && npm run dev.
+    -->
+    <!--
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        signInAnonymously,
+        signInWithCustomToken,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        addDoc,
+        updateDoc,
+        deleteDoc,
+        doc,
+        onSnapshot,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // CONFIGURATION
+      // Substitua pelo número da sua irmã no formato internacional (55 + DDD + Numero)
+      const WHATSAPP_NUMBER = "5511999999999";
+
+      // Firebase Initialization Environment variables
+      const appId =
+        typeof __app_id !== "undefined" ? __app_id : "doce-sabor-app-dev";
+      const firebaseConfig =
+        typeof __firebase_config !== "undefined"
+          ? JSON.parse(__firebase_config)
+          : {
+              // Dummy config for fallback - real logic relies on immersive environment
+              projectId: "demo-project",
+            };
+      const customToken =
+        typeof __initial_auth_token !== "undefined"
+          ? __initial_auth_token
+          : null;
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // Strict Paths (RULE 1)
+      const getMenuCollection = () =>
+        collection(db, "artifacts", appId, "public", "data", "menu");
+      const getOrdersCollection = () =>
+        collection(db, "artifacts", appId, "public", "data", "orders");
+
+      // App State
+      let currentUser = null;
+      let menuItems = [];
+      let cart = [];
+      let orders = [];
+      let unsubOrders = null;
+      let unsubMenu = null;
+
+      // Utilities
+      const formatMoney = (value) => {
+        return parseFloat(value).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        });
+      };
+
+      const showToast = (msg) => {
+        const toast = document.getElementById("toast");
+        toast.innerText = msg;
+        toast.classList.remove("opacity-0");
+        setTimeout(() => toast.classList.add("opacity-0"), 3000);
+      };
+
+      // Authentication (RULE 3)
+      async function initAuth() {
+        try {
+          if (customToken) {
+            await signInWithCustomToken(auth, customToken);
+          } else {
+            await signInAnonymously(auth);
+          }
+        } catch (error) {
+          console.error("Auth error:", error);
+          showToast("Erro ao conectar.");
+        }
+      }
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUser = user;
+          loadMenuRealtime();
+          document.getElementById("loader").style.display = "none";
+          showCustomerView();
+        }
+      });
+
+      // ==================== DATA LAYER ====================
+
+      async function seedInitialData() {
+        if (!currentUser) return;
+        const menuRef = getMenuCollection();
+        const snap = await getDocs(menuRef);
+        if (snap.empty) {
+          const defaults = [
+            {
+              name: "Brownie Tradicional",
+              desc: "Casquinha crocante por fora e super cremoso por dentro. Puro chocolate!",
+              price: 8.0,
+              image:
+                "https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+              active: true,
+            },
+            {
+              name: "Palha Italiana de Ninho",
+              desc: "A clássica palha italiana feita com brigadeiro de Leite Ninho derretendo na boca.",
+              price: 7.5,
+              image:
+                "https://images.unsplash.com/photo-1551024601-bec78aea704b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+              active: true,
+            },
+            {
+              name: "Brownie c/ Nutella",
+              desc: "Nosso brownie tradicional com uma cobertura generosa de Nutella pura.",
+              price: 12.0,
+              image:
+                "https://images.unsplash.com/photo-1599599406086-633ffc54a6db?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+              active: true,
+            },
+          ];
+          for (let item of defaults) {
+            await addDoc(menuRef, item);
+          }
+        }
+      }
+
+      function loadMenuRealtime() {
+        if (!currentUser) return;
+        // RULE 2: No complex queries, fetch all
+        unsubMenu = onSnapshot(
+          getMenuCollection(),
+          async (snapshot) => {
+            menuItems = [];
+            snapshot.forEach((doc) => {
+              menuItems.push({ id: doc.id, ...doc.data() });
+            });
+
+            if (menuItems.length === 0) {
+              await seedInitialData();
+            } else {
+              renderCustomerMenu();
+              renderAdminMenu();
+            }
+          },
+          (error) => console.error("Error loading menu:", error),
+        );
+      }
+
+      window.loadOrders = function () {
+        if (!currentUser) return;
+        if (unsubOrders) unsubOrders();
+
+        const ordersListEl = document.getElementById("admin-orders-list");
+        ordersListEl.innerHTML =
+          '<p class="text-center text-gray-500 py-8"><i class="fas fa-spinner fa-spin"></i> Carregando...</p>';
+
+        unsubOrders = onSnapshot(
+          getOrdersCollection(),
+          (snapshot) => {
+            orders = [];
+            snapshot.forEach((doc) => {
+              orders.push({ id: doc.id, ...doc.data() });
+            });
+            // Sort by creation date in memory (RULE 2)
+            orders.sort((a, b) => {
+              const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+              const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+              return timeB - timeA; // Newest first
+            });
+            renderAdminOrders();
+          },
+          (error) => console.error("Error loading orders:", error),
+        );
+      };
+
+      // ==================== CUSTOMER UI LOGIC ====================
+
+      window.showCustomerView = function () {
+        document.getElementById("admin-login-view").classList.add("hidden");
+        document.getElementById("admin-view").classList.add("hidden");
+        document.getElementById("customer-view").classList.remove("hidden");
+        document.getElementById("customer-view").classList.add("flex");
+      };
+
+      function renderCustomerMenu() {
+        const container = document.getElementById("menu-container");
+        container.innerHTML = "";
+
+        menuItems.forEach((item) => {
+          const imgUrl =
+            item.image ||
+            `https://placehold.co/400x300/8b5a2b/ffffff?text=${encodeURIComponent(item.name)}`;
+
+          const card = document.createElement("div");
+          card.className =
+            "bg-white rounded-2xl shadow-sm overflow-hidden border border-brand-100 flex flex-col fade-in transition-transform hover:-translate-y-1";
+          card.innerHTML = `
+                    <div class="h-48 overflow-hidden bg-brand-100">
+                        <img src="${imgUrl}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x300/8b5a2b/ffffff?text=Doce'">
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <h4 class="font-bold text-lg text-brand-700 leading-tight mb-1">${item.name}</h4>
+                        <p class="text-sm text-gray-500 mb-4 flex-grow">${item.desc || ""}</p>
+                        <div class="flex justify-between items-center mt-auto pt-4 border-t border-gray-50">
+                            <span class="font-bold text-lg text-brand-600">${formatMoney(item.price)}</span>
+                            <button onclick="addToCart('${item.id}')" class="bg-brand-500 hover:bg-brand-600 text-white w-10 h-10 rounded-full flex justify-center items-center shadow-md transition-colors">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+          container.appendChild(card);
+        });
+      }
+
+      // Cart Logic
+      window.toggleCart = function () {
+        const modal = document.getElementById("cart-modal");
+        modal.classList.toggle("hidden");
+        renderCart();
+      };
+
+      window.addToCart = function (id) {
+        const item = menuItems.find((i) => i.id === id);
+        if (!item) return;
+
+        const existing = cart.find((c) => c.id === id);
+        if (existing) {
+          existing.qty++;
+        } else {
+          cart.push({ ...item, qty: 1 });
+        }
+        updateCartBadge();
+        showToast(`${item.name} adicionado!`);
+      };
+
+      window.updateQty = function (id, delta) {
+        const index = cart.findIndex((c) => c.id === id);
+        if (index > -1) {
+          cart[index].qty += delta;
+          if (cart[index].qty <= 0) cart.splice(index, 1);
+        }
+        renderCart();
+        updateCartBadge();
+      };
+
+      function updateCartBadge() {
+        const badge = document.getElementById("cart-badge");
+        const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+        badge.innerText = totalQty;
+        if (totalQty > 0) badge.classList.remove("hidden");
+        else badge.classList.add("hidden");
+      }
+
+      function renderCart() {
+        const itemsContainer = document.getElementById("cart-items");
+        const emptyMsg = document.getElementById("empty-cart-msg");
+        const checkoutSection = document.getElementById("checkout-section");
+        const cartTotal = document.getElementById("cart-total");
+
+        // clear old items (keep empty msg)
+        Array.from(itemsContainer.children).forEach((child) => {
+          if (child.id !== "empty-cart-msg") child.remove();
+        });
+
+        if (cart.length === 0) {
+          emptyMsg.classList.remove("hidden");
+          checkoutSection.classList.add("hidden");
+          checkoutSection.classList.remove("flex");
+        } else {
+          emptyMsg.classList.add("hidden");
+          checkoutSection.classList.remove("hidden");
+          checkoutSection.classList.add("flex");
+
+          let total = 0;
+          cart.forEach((item) => {
+            total += item.price * item.qty;
+            const el = document.createElement("div");
+            el.className =
+              "flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100";
+            el.innerHTML = `
+                        <div class="flex-grow pr-2">
+                            <h5 class="text-sm font-bold text-gray-700">${item.name}</h5>
+                            <p class="text-xs text-brand-500 font-medium">${formatMoney(item.price)}</p>
+                        </div>
+                        <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-1">
+                            <button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 flex justify-center items-center text-brand-600 hover:bg-gray-200 rounded"><i class="fas fa-minus text-xs"></i></button>
+                            <span class="text-sm font-bold w-4 text-center">${item.qty}</span>
+                            <button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 flex justify-center items-center text-brand-600 hover:bg-gray-200 rounded"><i class="fas fa-plus text-xs"></i></button>
+                        </div>
+                    `;
+            itemsContainer.appendChild(el);
+          });
+          cartTotal.innerText = formatMoney(total);
+        }
+      }
+
+      window.submitOrder = async function () {
+        if (!currentUser) return;
+        const name = document.getElementById("cust-name").value.trim();
+        const phone = document.getElementById("cust-phone").value.trim();
+        const delivery = document.getElementById("cust-delivery").value;
+        const payment = document.getElementById("cust-payment").value;
+
+        if (!name || !phone) {
+          showToast("Por favor, preencha nome e WhatsApp.");
+          return;
+        }
+
+        if (cart.length === 0) return;
+
+        let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+        const orderData = {
+          customerName: name,
+          customerPhone: phone,
+          items: JSON.stringify(
+            cart.map((i) => ({ name: i.name, qty: i.qty, price: i.price })),
+          ),
+          total: total,
+          deliveryOption: delivery,
+          paymentOption: payment,
+          status: "Pendente",
+          createdAt: serverTimestamp(),
+        };
+
+        const btn = document.querySelector("#checkout-section button");
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+        btn.disabled = true;
+
+        try {
+          // Save to Firestore
+          await addDoc(getOrdersCollection(), orderData);
+
+          // Build WhatsApp Message
+          let msg = `*NOVO PEDIDO - DOCE SABOR*%0A%0A`;
+          msg += `*Cliente:* ${name}%0A`;
+          msg += `*Contato:* ${phone}%0A%0A`;
+          msg += `*Itens:*%0A`;
+          cart.forEach((item) => {
+            msg += `• ${item.qty}x ${item.name} (${formatMoney(item.price * item.qty)})%0A`;
+          });
+          msg += `%0A*Total:* ${formatMoney(total)}%0A`;
+          msg += `*Pagamento:* ${payment}%0A`;
+          msg += `*Entrega:* ${delivery}`;
+
+          const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+
+          // Clear Cart & UI
+          cart = [];
+          updateCartBadge();
+          toggleCart(); // close modal
+          document.getElementById("cust-name").value = "";
+          document.getElementById("cust-phone").value = "";
+          showToast("Pedido enviado com sucesso!");
+
+          // Redirect to WhatsApp
+          window.open(waUrl, "_blank");
+        } catch (error) {
+          console.error("Error submitting order: ", error);
+          showToast("Erro ao enviar pedido. Tente novamente.");
+        } finally {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      };
+
+      // ==================== ADMIN UI LOGIC ====================
+
+      window.showAdminLogin = function () {
+        document.getElementById("customer-view").classList.add("hidden");
+        document.getElementById("customer-view").classList.remove("flex");
+        document.getElementById("admin-login-view").classList.remove("hidden");
+      };
+
+      window.loginAdmin = function () {
+        const pin = document.getElementById("admin-pin").value;
+        // Simple visual block for demo. Real app should use Firebase Custom Claims or separate Auth rules
+        if (pin === "admin123") {
+          document.getElementById("admin-pin").value = "";
+          document.getElementById("admin-login-view").classList.add("hidden");
+          document.getElementById("admin-view").classList.remove("hidden");
+          document.getElementById("admin-view").classList.add("flex");
+
+          loadOrders(); // Load orders realtime when admin logs in
+        } else {
+          showToast("Senha incorreta. (Dica: admin123)");
+        }
+      };
+
+      window.logoutAdmin = function () {
+        if (unsubOrders) {
+          unsubOrders();
+          unsubOrders = null;
+        }
+        document.getElementById("admin-view").classList.add("hidden");
+        document.getElementById("admin-view").classList.remove("flex");
+        showCustomerView();
+        showToast("Saiu do painel.");
+      };
+
+      window.switchAdminTab = function (tab) {
+        const tOrders = document.getElementById("tab-orders");
+        const tMenu = document.getElementById("tab-menu");
+        const vOrders = document.getElementById("admin-orders-tab");
+        const vMenu = document.getElementById("admin-menu-tab");
+
+        if (tab === "orders") {
+          tOrders.className =
+            "flex-1 py-3 text-center font-medium border-b-2 border-brand-500 text-brand-600 transition";
+          tMenu.className =
+            "flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition";
+          vOrders.classList.remove("hidden");
+          vMenu.classList.add("hidden");
+        } else {
+          tMenu.className =
+            "flex-1 py-3 text-center font-medium border-b-2 border-brand-500 text-brand-600 transition";
+          tOrders.className =
+            "flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition";
+          vMenu.classList.remove("hidden");
+          vOrders.classList.add("hidden");
+        }
+      };
+
+      // Admin: Orders
+      function renderAdminOrders() {
+        const container = document.getElementById("admin-orders-list");
+        container.innerHTML = "";
+
+        if (orders.length === 0) {
+          container.innerHTML =
+            '<p class="text-center text-gray-500 py-8">Nenhum pedido encontrado.</p>';
+          return;
+        }
+
+        const statusColors = {
+          Pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
+          Separado: "bg-blue-100 text-blue-800 border-blue-200",
+          Entregue: "bg-green-100 text-green-800 border-green-200",
+        };
+
+        orders.forEach((order) => {
+          let itemsList = [];
+          try {
+            itemsList = JSON.parse(order.items);
+          } catch (e) {}
+
+          let dateStr = "Agorinha";
+          if (order.createdAt) {
+            const date = order.createdAt.toDate();
+            dateStr =
+              date.toLocaleDateString("pt-BR") +
+              " " +
+              date.toLocaleTimeString("pt-BR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+          }
+
+          const card = document.createElement("div");
+          card.className =
+            "bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row gap-4 justify-between md:items-center";
+
+          const itemsHtml = itemsList
+            .map(
+              (i) =>
+                `<li class="text-sm text-gray-600">${i.qty}x ${i.name}</li>`,
+            )
+            .join("");
+
+          card.innerHTML = `
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-lg">${order.customerName}</h3>
+                                <p class="text-xs text-gray-400 flex items-center gap-1"><i class="far fa-clock"></i> ${dateStr}</p>
+                            </div>
+                            <span class="px-2 py-1 text-xs rounded-full border font-medium ${statusColors[order.status] || "bg-gray-100"}">${order.status}</span>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-2 rounded-lg mb-3">
+                            <ul class="list-disc list-inside">
+                                ${itemsHtml}
+                            </ul>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                            <span class="text-gray-600"><i class="fas fa-motorcycle w-4"></i> ${order.deliveryOption}</span>
+                            <span class="text-gray-600"><i class="fas fa-wallet w-4"></i> ${order.paymentOption}</span>
+                            <span class="text-gray-600"><i class="fab fa-whatsapp w-4"></i> ${order.customerPhone}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col gap-2 min-w-[120px] md:border-l md:border-gray-100 md:pl-4">
+                        <div class="text-right md:text-center mb-2">
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">Total</p>
+                            <p class="font-bold text-brand-700 text-xl">${formatMoney(order.total)}</p>
+                        </div>
+                        <select onchange="updateOrderStatus('${order.id}', this.value)" class="w-full text-sm p-2 border border-gray-300 rounded-lg outline-none focus:border-brand-500 bg-white cursor-pointer">
+                            <option value="Pendente" ${order.status === "Pendente" ? "selected" : ""}>Pendente</option>
+                            <option value="Separado" ${order.status === "Separado" ? "selected" : ""}>Separado</option>
+                            <option value="Entregue" ${order.status === "Entregue" ? "selected" : ""}>Entregue</option>
+                        </select>
+                        <button onclick="deleteOrder('${order.id}')" class="text-xs text-red-500 hover:text-red-700 py-1 mt-1 text-right md:text-center"><i class="fas fa-trash-alt"></i> Excluir</button>
+                    </div>
+                `;
+          container.appendChild(card);
+        });
+      }
+
+      window.updateOrderStatus = async function (id, newStatus) {
+        if (!currentUser) return;
+        try {
+          const docRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "orders",
+            id,
+          );
+          await updateDoc(docRef, { status: newStatus });
+          showToast(`Status atualizado para: ${newStatus}`);
+        } catch (e) {
+          console.error(e);
+          showToast("Erro ao atualizar status.");
+        }
+      };
+
+      window.deleteOrder = async function (id) {
+        // No confirm() allowed, using custom UI or just doing it for simple cases.
+        // For safety, let's just perform the action in this MVP, or create a custom confirm UI if complex.
+        // Since alert/confirm is strictly forbidden, we'll proceed directly.
+        if (!currentUser) return;
+        try {
+          const docRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "orders",
+            id,
+          );
+          await deleteDoc(docRef);
+          showToast("Comanda excluída.");
+        } catch (e) {
+          console.error(e);
+          showToast("Erro ao excluir.");
+        }
+      };
+
+      // Admin: Menu Management
+      function renderAdminMenu() {
+        const tbody = document.getElementById("admin-menu-list");
+        tbody.innerHTML = "";
+
+        menuItems.forEach((item) => {
+          const tr = document.createElement("tr");
+          tr.className = "border-b border-gray-100 hover:bg-gray-50 transition";
+          tr.innerHTML = `
+                    <td class="p-3">
+                        <p class="font-medium text-gray-800">${item.name}</p>
+                        <p class="text-xs text-gray-500 truncate max-w-[150px] md:max-w-[300px]">${item.desc}</p>
+                    </td>
+                    <td class="p-3 font-medium text-brand-600 whitespace-nowrap">${formatMoney(item.price)}</td>
+                    <td class="p-3 text-center whitespace-nowrap">
+                        <button onclick="editProduct('${item.id}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded mr-1"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteProduct('${item.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      window.openProductModal = function () {
+        document.getElementById("product-form").reset();
+        document.getElementById("prod-id").value = "";
+        document.getElementById("modal-title").innerText = "Novo Produto";
+        document.getElementById("product-modal").classList.remove("hidden");
+      };
+
+      window.closeProductModal = function () {
+        document.getElementById("product-modal").classList.add("hidden");
+      };
+
+      window.editProduct = function (id) {
+        const item = menuItems.find((i) => i.id === id);
+        if (!item) return;
+
+        document.getElementById("prod-id").value = item.id;
+        document.getElementById("prod-name").value = item.name;
+        document.getElementById("prod-desc").value = item.desc || "";
+        document.getElementById("prod-price").value = item.price;
+        document.getElementById("prod-image").value = item.image || "";
+
+        document.getElementById("modal-title").innerText = "Editar Produto";
+        document.getElementById("product-modal").classList.remove("hidden");
+      };
+
+      window.saveProduct = async function (e) {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        const id = document.getElementById("prod-id").value;
+        const data = {
+          name: document.getElementById("prod-name").value,
+          desc: document.getElementById("prod-desc").value,
+          price: parseFloat(document.getElementById("prod-price").value),
+          image: document.getElementById("prod-image").value,
+          active: true,
+        };
+
+        const btn = e.target.querySelector('button[type="submit"]');
+        const origTxt = btn.innerText;
+        btn.innerText = "Salvando...";
+
+        try {
+          if (id) {
+            const docRef = doc(
+              db,
+              "artifacts",
+              appId,
+              "public",
+              "data",
+              "menu",
+              id,
+            );
+            await updateDoc(docRef, data);
+            showToast("Produto atualizado!");
+          } else {
+            await addDoc(getMenuCollection(), data);
+            showToast("Produto criado!");
+          }
+          closeProductModal();
+        } catch (error) {
+          console.error(error);
+          showToast("Erro ao salvar produto.");
+        } finally {
+          btn.innerText = origTxt;
+        }
+      };
+
+      window.deleteProduct = async function (id) {
+        if (!currentUser) return;
+        try {
+          const docRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "menu",
+            id,
+          );
+          await deleteDoc(docRef);
+          showToast("Produto removido.");
+        } catch (error) {
+          console.error(error);
+          showToast("Erro ao remover produto.");
+        }
+      };
+
+      // Start Application
+      initAuth();
+    </script> -->
+  </body>
+</html>
