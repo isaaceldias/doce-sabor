@@ -9,6 +9,7 @@ create table if not exists public.orders (
   items jsonb not null, total numeric(10,2) not null check (total >= 0), delivery_option text,
   payment_option text, status text not null default 'Pendente', created_at timestamptz not null default now()
 );
+alter table public.orders add column if not exists delivered_at timestamptz;
 
 alter table public.menu enable row level security;
 alter table public.orders enable row level security;
