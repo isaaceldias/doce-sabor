@@ -19,7 +19,7 @@ Deno.serve(async (request) => {
       return json({ error: "Informe o nome ou ingredientes do produto." }, 400);
     const prompt = `Você é redator de uma doceria brasileira. Crie um título curto e uma descrição apetitosa para este produto. Não invente ingredientes. Responda SOMENTE com JSON válido no formato {"title":"...","description":"..."}. Produto: ${name}. Descrição/ingredientes: ${description || "não informado"}. Preço: R$ ${price || "não informado"}.`;
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
