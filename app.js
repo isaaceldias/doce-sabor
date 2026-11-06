@@ -12,6 +12,12 @@ const config = {
 const supabase = config.url && config.key ? createClient(config.url, config.key) : null;
 let menuItems = [], cart = [], orders = [], editingId = null;
 const $ = (id) => document.getElementById(id);
+const requireSupabase = () => {
+  if (supabase) return true;
+  toast("Supabase não configurado. Confira o .env e reinicie o Vite.");
+  console.error("Supabase não inicializado. Verifique VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY/VITE_SUPABASE_PUBLISHABLE_KEY.");
+  return false;
+};
 const money = (value) => Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const toast = (message) => { $("toast").innerText = message; $("toast").classList.remove("opacity-0"); setTimeout(() => $("toast").classList.add("opacity-0"), 3000); };
 const escapeHtml = (value = "") => String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
@@ -55,7 +61,23 @@ function renderAdminMenu() { const tbody = $("admin-menu-list"); if (!tbody) ret
 window.openProductModal = () => { editingId = null; $("product-form").reset(); $("modal-title").innerText = "Novo Produto"; $("product-modal").classList.remove("hidden"); };
 window.closeProductModal = () => $("product-modal").classList.add("hidden");
 window.editProduct = (id) => { const x = menuItems.find((i) => i.id === id); if (!x) return; editingId = id; $("prod-name").value = x.name; $("prod-desc").value = x.desc || ""; $("prod-price").value = x.price; $("prod-image").value = x.image || ""; $("modal-title").innerText = "Editar Produto"; $("product-modal").classList.remove("hidden"); };
-window.saveProduct = async (e) => { e.preventDefault(); const payload = { name: $("prod-name").value.trim(), description: $("prod-desc").value.trim(), price: Number($("prod-price").value), image: $("prod-image").value.trim(), active: true }; const query = editingId ? supabase.from("menu").update(payload).eq("id", editingId) : supabase.from("menu").insert(payload); const { error } = await query; if (error) return toast("Erro ao salvar produto."); closeProductModal(); await loadMenu(); toast("Produto salvo!"); };
+window.generateProductCopy = async () => {
+  if (!requireSupabase()) return;
+  const button = $("generate-copy-button");
+  const original = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Gerando...';
+  const { data, error } = await supabase.functions.invoke("generate-product-copy", {
+    body: { name: $("prod-name").value.trim(), description: $("prod-desc").value.trim(), price: $("prod-price").value },
+  });
+  button.disabled = false;
+  button.innerHTML = original;
+  if (error || data?.error) return toast(data?.error || "Não foi possível gerar o texto.");
+  if (data.title) $("prod-name").value = data.title;
+  if (data.description) $("prod-desc").value = data.description;
+  toast("Título e descrição gerados!");
+};
+window.saveProduct = async (e) => { e.preventDefault(); if (!requireSupabase()) return; const payload = { name: $("prod-name").value.trim(), description: $("prod-desc").value.trim(), price: Number($("prod-price").value), image: $("prod-image").value.trim(), active: true }; const query = editingId ? supabase.from("menu").update(payload).eq("id", editingId) : supabase.from("menu").insert(payload); const { error } = await query; if (error) { console.error("Erro do Supabase ao salvar produto:", error); return toast(`Erro ao salvar produto: ${error.message}`); } closeProductModal(); await loadMenu(); toast("Produto salvo!"); };
 window.deleteProduct = async (id) => { await supabase.from("menu").delete().eq("id", id); await loadMenu(); toast("Produto removido."); };
 
 $("loader").style.display = "none"; showCustomerView(); loadMenu();
