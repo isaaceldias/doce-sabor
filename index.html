@@ -367,6 +367,22 @@
         </main>
       </div>
 
+      <div id="order-edit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+          <div class="mb-4 flex items-center justify-between"><h2 class="text-xl font-bold text-gray-800">Editar pedido pendente</h2><button onclick="closeOrderEdit()" class="text-xl text-gray-400">&times;</button></div>
+          <form onsubmit="saveOrderEdit(event)" class="flex flex-col gap-3">
+            <input type="hidden" id="edit-order-id" />
+            <input id="edit-order-name" class="w-full rounded-lg border p-3" placeholder="Nome do cliente" required />
+            <input id="edit-order-phone" class="w-full rounded-lg border p-3" placeholder="WhatsApp" required />
+            <select id="edit-order-delivery" class="w-full rounded-lg border p-3"><option>Retirada</option><option>A combinar</option></select>
+            <select id="edit-order-payment" class="w-full rounded-lg border p-3"><option>PIX</option><option>Cartão (Link de Pagamento)</option></select>
+            <textarea id="edit-order-items" class="min-h-28 w-full rounded-lg border p-3" placeholder="Um item por linha: quantidade | nome | preço"></textarea>
+            <p class="text-xs text-gray-400">Exemplo: 2 | Brownie de Ninho | 7.00</p>
+            <div class="mt-2 flex gap-3"><button type="button" onclick="closeOrderEdit()" class="flex-1 rounded-lg bg-gray-100 py-3">Cancelar</button><button type="submit" class="flex-1 rounded-lg bg-brand-500 py-3 font-bold text-white">Salvar alterações</button></div>
+          </form>
+        </div>
+      </div>
+
       <!-- ==================== PRODUCT MODAL (ADMIN) ==================== -->
       <div
         id="product-modal"
